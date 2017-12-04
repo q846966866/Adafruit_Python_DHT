@@ -25,7 +25,7 @@ import httplib, urllib
 import json
 import Adafruit_DHT
 
-
+##
 # Parse command line parameters.
 sensor_args = { '11': Adafruit_DHT.DHT11,
                 '22': Adafruit_DHT.DHT22,
