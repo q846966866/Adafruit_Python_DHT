@@ -24,6 +24,9 @@ import time
 import httplib, urllib
 import json
 import Adafruit_DHT
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(24,GPIO.IN,pull_up_down=GPIO.PUD_UP)
 
 ##
 # Parse command line parameters.
@@ -50,7 +53,7 @@ humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
 # guarantee the timing of calls to read the sensor).
 # If this happens try again!
 
-deviceId = "DoMxbTXUr"
+deviceId = "DoMxbTXU"
 deviceKey = "jBRdiDhbM0dZhHo8"
 def post_to_mcs(payload):
 	headers = {"Content-type": "application/json", "deviceKey": deviceKey}
@@ -71,17 +74,21 @@ def post_to_mcs(payload):
 
 
 while True:
+
 	humidity, temperature = Adafruit_DHT.read_retry(sensor, pin)
+	SwitchStatus = GPIO.input(24)
+ 	if(SwitchStatus==0):
+                print('Button pressed')
+        else:
+                print('Button released')
+
 	if humidity is not None and temperature is not None:
 		print('Temp={0:0.1f}*  Humidity={1:0.1f}%'.format(temperature, humidity))
-
 		payload = {"datapoints":[{"dataChnId":"Humidity","values":{"value":humidity}},
-		       	{"dataChnId":"Temperature","values":{"value":temperature}}]}
+	       	{"dataChnId":"Temperature","values":{"value":temperature}},{"dataChnId":"SwitchStatus","values":{"value":SwitchStatus}}]}
 		post_to_mcs(payload)
 		time.sleep(10)
 
 	else:
 		print('Failed to get reading. Try again!')
 		sys.exit(1)
-
-
